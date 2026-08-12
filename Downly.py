@@ -1184,8 +1184,8 @@ class MainWindow:
 
     def _build(self):
         self.root.title(f"{APP_NAME} -- Download Manager")
-        self.root.minsize(900, 600)
-        self.root.geometry("1100x700")
+        self.root.minsize(900, 500)
+        self.root.geometry("1100x550")
         self.root.configure(fg_color=C["bg_dark"])
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(2, weight=1)
