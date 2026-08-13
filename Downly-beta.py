@@ -162,7 +162,7 @@ def guess_filename(url: str) -> str:
         if name and "." in name: return name
     except Exception:
         pass
-    return "download_" + datetime.now().strftime("%Y%m%d_%H%M%S")
+    return ""
 
 def send_notification(title: str, message: str) -> None:
     pass
@@ -231,7 +231,13 @@ class DownloadItem:
                  user_agent: str = "", referer: str = "", uid: str = ""):
         self.url       = url
         self.save_dir  = Path(save_dir)
-        self.filename  = filename or guess_filename(url)
+        guessed = guess_filename(url)
+        if filename and filename != guessed:
+            self.filename = filename
+            self.is_custom_filename = True
+        else:
+            self.filename = guessed or ("download_" + datetime.now().strftime("%Y%m%d_%H%M%S"))
+            self.is_custom_filename = False
         self.username  = username
         self.password  = password
         self.user_agent = user_agent
@@ -338,8 +344,10 @@ class Aria2Manager:
     def add_download(self, item: DownloadItem) -> Optional[str]:
         if not self._client: return None
         options = {
-            "dir": str(item.save_dir), "out": item.filename, "continue": "true",
+            "dir": str(item.save_dir), "continue": "true",
         }
+        if getattr(item, "is_custom_filename", False):
+            options["out"] = item.filename
         if item.user_agent: options["user-agent"] = item.user_agent
         if item.referer:    options["referer"]     = item.referer
         if item.username:   options["http-user"]   = item.username
